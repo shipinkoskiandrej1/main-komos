@@ -1,8 +1,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import Lenis from 'lenis';
+import { inject } from '@vercel/analytics';
 import './index.css';
 import App from './App.jsx';
+
+inject();
 
 const lenis = new Lenis({
   duration: 1.25,
