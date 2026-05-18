@@ -1,11 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import Lenis from 'lenis';
-import { inject } from '@vercel/analytics';
+import { Analytics } from '@vercel/analytics/react';
 import './index.css';
 import App from './App.jsx';
-
-inject();
 
 const lenis = new Lenis({
   duration: 1.25,
@@ -22,5 +20,6 @@ requestAnimationFrame(raf);
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
+    <Analytics />
   </StrictMode>
 );
