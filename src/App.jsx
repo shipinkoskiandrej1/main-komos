@@ -1,16 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useMotionValue, useInView, useScroll, useTransform, animate as motionAnimate } from 'motion/react';
 
-// ------------ Storage shim ------------
-const storage = (() => {
-  if (typeof window !== 'undefined' && window.storage) return window.storage;
-  const mem = {};
-  return {
-    getItem: async (k) => (k in mem ? mem[k] : null),
-    setItem: async (k, v) => { mem[k] = String(v); },
-    removeItem: async (k) => { delete mem[k]; },
-  };
-})();
 
 // ------------ Tokens ------------
 const c = {
@@ -199,16 +189,18 @@ function WaitlistForm({ count, onJoined, centered = false, onDark = false }) {
     setError('');
     setState('submitting');
     try {
-      const existing = await storage.getItem(`komos:waitlist:${v}`);
-      if (!existing) {
-        await storage.setItem(`komos:waitlist:${v}`, new Date().toISOString());
-        const current = parseInt((await storage.getItem('komos:waitlist:count')) || '0', 10);
-        const next = current + 1;
-        await storage.setItem('komos:waitlist:count', String(next));
-        onJoined(next);
-      } else {
-        onJoined(null);
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: v }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Something went wrong. Try again.');
+        setState('error');
+        return;
       }
+      if (!data.existing) onJoined('new');
       setTimeout(() => setState('success'), 380);
     } catch {
       setError('Something went wrong. Try again.');
